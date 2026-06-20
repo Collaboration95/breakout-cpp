@@ -1,0 +1,48 @@
+# ── Build output ────────────────────────────────────────────────
+# Out-of-source CMake build dirs (the convention this project uses)
+build/
+cmake-build-*/        # CLion
+out/                  # VS / VS Code "CMake Tools"
+
+# CMake-generated files (in case anyone configures in-source by mistake)
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+CTestTestfile.cmake
+compile_commands.json   # generated; clangd reads it from the build dir
+
+# ── Compiled artifacts ──────────────────────────────────────────
+*.o
+*.obj
+*.a
+*.lib
+*.so
+*.dylib
+*.dll
+*.exe
+*.out
+*.dSYM/                # macOS debug symbols
+breakout              # the Phase 0 game binary, if built in-tree
+
+# ── Editor / IDE ────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*~
+.cache/
+
+# ── OS cruft ────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+
+# ── Runtime game state ──────────────────────────────────────────
+# Once the save/settings code exists (phases 7/8/10) the game writes
+# player slots, high scores and settings at runtime. Committed *seed*
+# defaults are intentional (see docs/05), but a player's live saves are
+# not — so ignore them then. Left commented until those files exist:
+# game_load_files/savefile.txt
+# game_load_files/highscores.txt
+# game_load_files/settings.txt
+
+# NOTE: assets/music/*.wav are deliberately NOT ignored — they are
+# committed via Git LFS (see .gitattributes) so a clone gets the audio.
