@@ -1,0 +1,5 @@
+# Breakout_cpp — C++ review log
+# Append-only record of /cpp-review runs. Newest at the bottom.
+# Each entry records when it ran and the commit range, so the next review
+# resumes from the last `Head:` sha. Managed by the cpp-review skill.
+# ──────────────────────────────────────────────────────────────────────

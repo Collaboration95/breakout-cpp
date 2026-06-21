@@ -1,5 +1,7 @@
 # Breakout — C++ Rewrite
 
+>> Following Text is written by an LLM after conversing a few times back and forth , Take all first person language with a pinch of salt
+
 A from-scratch C++ rewrite of [`../Breakout_C`](../Breakout_C), a Breakout-style
 arcade game originally written in **C + SDL2** as a university project
 (50.051 Programming Language Concepts, 2024).
