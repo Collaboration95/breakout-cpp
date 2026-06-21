@@ -32,6 +32,6 @@ target_compile_options(breakout PRIVATE
     -Wsign-conversion   # warn when signed/unsigned mismatch silently converts
 )
 
-# ── Future: graphics / audio library ────────────────────────────
-# When the library decision is made (see docs/02-library-alternatives.md),
-# add find_package / FetchContent and target_link_libraries here.
+# ── SDL2 ─────────────────────────────────────────────────────────
+find_package(SDL2 REQUIRED)
+target_link_libraries(breakout PRIVATE SDL2::SDL2 SDL2::SDL2main)
