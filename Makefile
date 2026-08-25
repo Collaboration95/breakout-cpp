@@ -1,7 +1,7 @@
 BUILD_DIR := build
 BINARY    := $(BUILD_DIR)/breakout
 CMAKE     := cmake
-CXX       := /opt/homebrew/bin/g++-16
+CXX       ?= c++
 
 .PHONY: all run cleanup fresh
 
@@ -14,8 +14,8 @@ $(BINARY): $(BUILD_DIR)/CMakeCache.txt
 # Configure step — only runs when build/ doesn't contain a CMake cache yet.
 $(BUILD_DIR)/CMakeCache.txt:
 	$(CMAKE) -B $(BUILD_DIR) \
-	    -DCMAKE_CXX_COMPILER=$(CXX) \
-	    -DCMAKE_BUILD_TYPE=Debug
+		-DCMAKE_BUILD_TYPE=Debug $(if $(filter-out c++,$(CXX)),-DCMAKE_CXX_COMPILER=$(CXX))
+
 
 # Build then run the binary.
 run: all

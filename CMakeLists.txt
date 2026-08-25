@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.25)
 project(Breakout LANGUAGES CXX)
 
 # ── Language standard ────────────────────────────────────────────
-set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
@@ -34,4 +34,5 @@ target_compile_options(breakout PRIVATE
 
 # ── SDL2 ─────────────────────────────────────────────────────────
 find_package(SDL2 REQUIRED)
-target_link_libraries(breakout PRIVATE SDL2::SDL2 SDL2::SDL2main)
+find_package(SDL2_image REQUIRED)
+target_link_libraries(breakout PRIVATE SDL2::SDL2 SDL2::SDL2main SDL2_image::SDL2_image)
