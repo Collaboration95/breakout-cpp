@@ -3,3 +3,17 @@
 # Each entry records when it ran and the commit range, so the next review
 # resumes from the last `Head:` sha. Managed by the cpp-review skill.
 # ──────────────────────────────────────────────────────────────────────
+────────────────────────────────────────────────────────────────────────
+Review #1  ·  2026-08-26 12:11
+Base: 9c088e5   Head: 9c088e5 (working tree)
+Scope: BRK-002 loop WIP — SDLK_ESCAPE fix, ESC/quit handling, window dims
+Span:  0 commit(s) · 1 file(s) · +26/−7
+Counts: 🔴 0  ·  🟡 5  ·  🔵 2
+Notes: Fixed ESC type confusion (SDL_KEYDOWN vs keysym) correctly; still missing continuous present inside loop and 558 vs 458 height. No memory corruption.
+────────────────────────────────────────────────────────────────────────
+Review #2  ·  2026-08-26 12:17
+Base: 9c088e5   Head: 9c088e5 (working tree)
+Scope: BRK-002 final WIP — 864x558 dims, continuous present, ESC fix + BRK-003 TODO
+Span:  0 commit(s) · 1 file(s) · +30/−9
+Counts: 🔴 0  ·  🟡 3  ·  🔵 1
+Notes: BRK-002 acceptance now met: dims correct, present inside loop, ESC via SDL_KEYDOWN. TODO(BRK-003) RAII noted. Ready to commit.

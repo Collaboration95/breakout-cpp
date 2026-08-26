@@ -1,14 +1,20 @@
 #include <iostream>
-#include <SDL2/SDL_image.h>
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
 #include <chrono>
 #include <thread>
 #include <string>
 
-const int SCREEN_WIDTH = 640;
-const int SCREEN_HEIGHT = 480;
+const int SCREEN_WIDTH = 864;
+const int SCREEN_HEIGHT = 558;
 const char *bmpPath = "assets/hello_world.bmp";
 const char *backgroundImagePath = "assets/background-panel.png";
+// TODO(BRK-003): Wrap owning SDL handles in RAII — SDL_CreateWindow / SDL_GetWindowSurface / IMG_Load
+// currently use raw owning globals (gWindow, gScreenSurface, gHelloWorld) + manual close().
+// In BRK-003 replace with std::unique_ptr with custom deleter or a small RAII wrapper
+// (e.g. WindowPtr = unique_ptr<SDL_Window, decltype(&SDL_DestroyWindow)>), so close()'s
+// SDL_FreeSurface/SDL_DestroyWindow/IMG_Quit/SDL_Quit vanish into destructors.
+// See docs/03-cpp-port-roadmap.md Phase 0.
 SDL_Window *gWindow = NULL;
 
 // The surface contained by the window
@@ -43,10 +49,11 @@ bool init()
     }
 
     // Video initialized , need to create window
-    gWindow = SDL_CreateWindow("SDL Tutorial", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
+    // TODO(BRK-003): SDL_CreateWindow ownership currently raw — will move into RAII wrapper.
+    gWindow = SDL_CreateWindow("Breakout CPP", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
     if (gWindow == NULL)
     {
-        std::cout << "Window could not be created! SDL_Error:" << IMG_GetError() << "\n";
+        std::cout << "Window could not be created! SDL_Error:" << SDL_GetError() << "\n";
         success = false;
     }
     else
@@ -110,19 +117,34 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[])
         {
             bool quit = false;
             // SDL event handler ( any events will be stored here )
+
             SDL_Event e;
             while (!quit)
             {
                 while (SDL_PollEvent(&e) != 0)
                 {
-                    if (e.type == SDL_QUIT)
+                    switch (e.type)
+                    {
+                    case SDL_QUIT:
                         quit = true;
+                        std::cout << "Quit Entered";
+                        break;
+                    case SDL_KEYDOWN:
+                        switch (e.key.keysym.sym)
+                        {
+                        case (SDLK_ESCAPE):
+                            quit = true;
+                            std::cout << "Escape Entered";
+                            break;
+                        }
+                        break;
+                    }
                 }
+                SDL_UpperBlitScaled(gHelloWorld, NULL, gScreenSurface, NULL);
+                SDL_UpdateWindowSurface(gWindow);
+                SDL_Delay(16); // to avoid busy spinning
             }
             // SDL_BlitSurface(gHelloWorld, NULL, gScreenSurface, NULL);
-            SDL_UpperBlitScaled(gHelloWorld, NULL, gScreenSurface, NULL);
-            SDL_UpdateWindowSurface(gWindow);
-            sleepForXSeconds(30000);
         }
     }
 
