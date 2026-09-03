@@ -46,6 +46,8 @@ struct SdlImageContext
 
 using WindowPtr = std::unique_ptr<SDL_Window, decltype(&SDL_DestroyWindow)>;
 using SurfacePtr = std::unique_ptr<SDL_Surface, decltype(&SDL_FreeSurface)>;
+using RendererPtr = std::unique_ptr<SDL_Renderer, decltype(&SDL_DestroyRenderer)>;
+using TexturePtr = std::unique_ptr<SDL_Texture, decltype(&SDL_DestroyTexture)>;
 
 // ── Constants ────────────────────────────────────────────────────────────────
 const int SCREEN_WIDTH = 864;
@@ -63,24 +65,35 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[])
         WindowPtr window{
             SDL_CreateWindow("Breakout CPP", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
                              SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN),
+
             &SDL_DestroyWindow};
+
         if (!window)
         {
             throw std::runtime_error(std::string("SDL_CreateWindow failed: ") + SDL_GetError());
         }
 
-        // Borrowed handle — owned by window, do NOT free.
-        SDL_Surface *screenSurface = SDL_GetWindowSurface(window.get());
-        if (!screenSurface)
+        RendererPtr renderer{
+            SDL_CreateRenderer(window.get(), -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC),
+            &SDL_DestroyRenderer};
+
+        if (!renderer)
         {
-            throw std::runtime_error(std::string("SDL_GetWindowSurface failed: ") + SDL_GetError());
+            throw std::runtime_error(std::string("SDL_CreateRenderer failed: ") + SDL_GetError());
         }
 
         SurfacePtr helloWorld{IMG_Load(backgroundImagePath), &SDL_FreeSurface};
+
         if (!helloWorld)
         {
             throw std::runtime_error(std::string("IMG_Load failed: ") + IMG_GetError() + " / " +
                                      SDL_GetError());
+        }
+        TexturePtr bg{SDL_CreateTextureFromSurface(renderer.get(), helloWorld.get()), &SDL_DestroyTexture};
+
+        if (!bg)
+        {
+            throw std::runtime_error(std::string("SDL_CreateTextureFromSurface Failed") + SDL_GetError());
         }
 
         // ── BRK-002 loop (unchanged behavior) ────────────────────────────────
@@ -111,8 +124,32 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[])
                     break;
                 }
             }
-            SDL_UpperBlitScaled(helloWorld.get(), nullptr, screenSurface, nullptr);
-            SDL_UpdateWindowSurface(window.get());
+            /* Can draw rectangle here ? for now */
+            /* Setting rbgA value , ie setting stuff to white ?*/
+            // SDL_RenderClear(renderer.get());
+            SDL_Rect probe{100, 100, 200, 50};
+            // SDL_SetRenderDrawColor(renderer.get(), 0xFF, 0xFF, 0xFF, 0xFF);
+            // SDL_UpperBlitScaled(helloWorld.get(), nullptr, screenSurface, nullptr);
+            SDL_SetRenderDrawColor(renderer.get(), 0x1E, 0x1E, 0x1E, 0xFF);
+
+            if (SDL_RenderClear(renderer.get()) < 0)
+            {
+                std::cerr << "SDL_RenderClear failed:" << SDL_GetError() << "\n";
+            }
+
+            if (SDL_RenderCopy(renderer.get(), bg.get(), nullptr, nullptr) < 0)
+            {
+                std::cerr << "SDL_RenderCopy failed:" << SDL_GetError() << "\n";
+            }
+
+            SDL_SetRenderDrawColor(renderer.get(), 1, 1, 1, 0xFF);
+
+            if (SDL_RenderFillRect(renderer.get(), &probe) < 0)
+            {
+                std::cerr << "SDL_RenderFillRect failed:" << SDL_GetError() << "\n";
+            }
+            SDL_RenderPresent(renderer.get());
+
             SDL_Delay(16);
         }
         // No manual close() — WindowPtr/SurfacePtr/Context destructors release in order:
