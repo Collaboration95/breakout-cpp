@@ -28,7 +28,24 @@ struct Paddle
     int w = 120;
     int h = 40;
     int x = (int)(SCREEN_WIDTH * .50) - (int)(w * .5);
-    int y = (int)(SCREEN_HEIGHT * .80) - (int)(h * .5);
+    int y = (int)(SCREEN_HEIGHT * .83) - (int)(h * .5);
+
+private:
+    int paddleSpeed = 10;
+    int fastFactor = 2;
+
+public:
+    void move(int dir, bool isFast = false)
+    {
+        if (isFast)
+        {
+            x += dir * fastFactor;
+        }
+        else
+        {
+            x += dir * fastFactor * 2;
+        }
+    }
 };
 struct SdlContext
 {
@@ -137,19 +154,16 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[])
 
                         break;
                     case SDLK_RIGHT:
-                        if (probe.x + probe.w < PADDLE_BOUNDARY_RIGHT)
-                        {
-                            probe.x += dx;
-                        }
+
+                        paddle.move(1);
+                        probe.x = paddle.x;
 
                         std::cout << "RIGHTKEYPRESS" << "\n";
                         break;
                     case SDLK_LEFT:
-                        if (probe.x > PADDLE_BOUNDARY_LEFT)
-                        {
 
-                            probe.x -= dx;
-                        }
+                        paddle.move(-1);
+                        probe.x = paddle.x;
 
                         std::cout << "LEft keypress\n";
                         break;
@@ -162,6 +176,19 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[])
                     break;
                 }
             }
+
+            // need to handle multiple keys pressed at once
+            const Uint8 *ks = SDL_GetKeyboardState(nullptr);
+            int dir = (ks[SDL_SCANCODE_RIGHT] ? 1 : 0) - (ks[SDL_SCANCODE_LEFT] ? 1 : 0);
+            if (ks[SDL_SCANCODE_LALT])
+            {
+                paddle.move(dir, true);
+            }
+            else
+            {
+                paddle.move(dir);
+            }
+
             /* Can draw rectangle here ? for now */
             /* Setting rbgA value , ie setting stuff to white ?*/
             // SDL_RenderClear(renderer.get());

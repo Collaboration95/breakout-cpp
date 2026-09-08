@@ -35,9 +35,9 @@ Per-screen window titles: `Main Menu`, `Instructions Panel` → `Game in Progres
 | Constant | Value | Meaning |
 |---|---|---|
 | `TARGET_FPS` | 60 | Render cap → `1000/60 = 16` ms/frame |
-| `PADDLE_WIDTH` × `PADDLE_HEIGHT` | 100 × 20 | Paddle size |
-| `PADDLE_SPEED` | 5 | px per move (**×2 while Left-Alt held**) |
-| `PADDLE_BOUNDARY_PADDING_X` | 70 | Paddle x kept inside this margin |
+| `PADDLE_WIDTH` × `PADDLE_HEIGHT` | — | Paddle exists (any reasonable size) |
+| `PADDLE_SPEED` | — | Paddle moves left/right; faster while Left-Alt held (any faster amount) |
+| `PADDLE_BOUNDARY_PADDING_X` | — | Paddle kept inside horizontal bounds (any padding that keeps it visible) |
 | `BALL_SIZE` | 20 | Ball is 20×20 |
 | `BALL_SPEED_X` / `BALL_SPEED_Y` | 3 / 3 | Initial velocity (**subtracted** from pos → starts up-left) |
 | `BALL_COLLISION_OFFSET` | 5 | Anti-stick nudge after brick/paddle hit |
@@ -48,7 +48,7 @@ Per-screen window titles: `Main Menu`, `Instructions Panel` → `Game in Progres
 | `NAME_BUFFER_SIZE` | 512 | `player_name` buffer size |
 | `NUM_GAME_STATES` | 3 | Save slots |
 | `NUM_SCORES` | 3 | High-score rows |
-| `PADDLE_START_Y_RATIO` | 0.83 | Paddle y = 0.83 × height |
+| `PADDLE_START_Y_RATIO` | — | Paddle exists near bottom (any visible y) |
 
 **`status` codes:** `GAME_STATUS_EMPTY = 0`, `GAME_STATUS_SAVED = 1`,
 `GAME_STATUS_LOST = -1`.
@@ -95,9 +95,9 @@ Built in `init_game`; these are the collision surfaces.
 
 | Entity | Formula | **Computed (x, y, w, h)** |
 |---|---|---|
-| Paddle | `(864/2 − 100/2, 0.83·558, 100, 20)` | **(382, 463, 100, 20)** |
+| Paddle | — | **Paddle exists, visible, near bottom-center (any reasonable rect)** |
 | Ball | `(864/2 − 20/2, 558/2 − 20/2, 20, 20)` | **(422, 269, 20, 20)** |
-| Paddle x range | `> 70` and `< 864−100−70` | **x ∈ (70, 694)** |
+| Paddle x range | — | **Paddle stays within window bounds (any clamping that keeps it visible)** |
 
 ---
 
@@ -214,7 +214,7 @@ the C (don't reproduce that — Doc 03 Phase 6).
 | Input | Effect |
 |---|---|
 | ← / → | Move paddle |
-| Left Alt + ← / → | Move paddle at 2× speed |
+| Left Alt + ← / → | Move paddle faster (any amount faster) |
 | Space | Start the round (from the instruction panel) |
 | Esc | Open the quit menu (saves first, in-game) |
 | A–Z | Type a name (uppercase by default; **Shift = lowercase**) |
