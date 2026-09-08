@@ -5,9 +5,31 @@
 #include <stdexcept>
 #include <string>
 
+// ── Constants ────────────────────────────────────────────────────────────────
+const int SCREEN_WIDTH = 864;
+const int SCREEN_HEIGHT = 558;
+const int PADDLE_BOUNDARY_LEFT = 80;
+const int PADDLE_BOUNDARY_RIGHT = SCREEN_WIDTH - PADDLE_BOUNDARY_LEFT;
+
+const char *backgroundImagePath = "assets/background-panel.png";
+
 // ── Owned SDL lifetime (BRK-003 Req 1: one owner, one release path) ─────────
 // Each native resource has exactly one RAII owner. No globals, no manual close().
 
+// Instantiate a Keypress enum to handle left / right keypress
+enum PaddleKeyPress
+{
+    KEYPRESS_LEFT,
+    KEYPRESS_RIGHT,
+};
+
+struct Paddle
+{
+    int w = 120;
+    int h = 40;
+    int x = (int)(SCREEN_WIDTH * .50) - (int)(w * .5);
+    int y = (int)(SCREEN_HEIGHT * .80) - (int)(h * .5);
+};
 struct SdlContext
 {
     SdlContext()
@@ -48,11 +70,6 @@ using WindowPtr = std::unique_ptr<SDL_Window, decltype(&SDL_DestroyWindow)>;
 using SurfacePtr = std::unique_ptr<SDL_Surface, decltype(&SDL_FreeSurface)>;
 using RendererPtr = std::unique_ptr<SDL_Renderer, decltype(&SDL_DestroyRenderer)>;
 using TexturePtr = std::unique_ptr<SDL_Texture, decltype(&SDL_DestroyTexture)>;
-
-// ── Constants ────────────────────────────────────────────────────────────────
-const int SCREEN_WIDTH = 864;
-const int SCREEN_HEIGHT = 558;
-const char *backgroundImagePath = "assets/background-panel.png";
 
 int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[])
 {
@@ -95,9 +112,11 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[])
         {
             throw std::runtime_error(std::string("SDL_CreateTextureFromSurface Failed") + SDL_GetError());
         }
-
+        Paddle paddle;
+        SDL_Rect probe{paddle.x, paddle.y, paddle.w, paddle.h};
         // ── BRK-002 loop (unchanged behavior) ────────────────────────────────
         bool quit = false;
+        int dx = 10; // var to determine left/ right paddle movement speed
         SDL_Event e;
         while (!quit)
         {
@@ -115,8 +134,27 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[])
                     case SDLK_ESCAPE:
                         quit = true;
                         std::cout << "Escape Entered\n";
+
+                        break;
+                    case SDLK_RIGHT:
+                        if (probe.x + probe.w < PADDLE_BOUNDARY_RIGHT)
+                        {
+                            probe.x += dx;
+                        }
+
+                        std::cout << "RIGHTKEYPRESS" << "\n";
+                        break;
+                    case SDLK_LEFT:
+                        if (probe.x > PADDLE_BOUNDARY_LEFT)
+                        {
+
+                            probe.x -= dx;
+                        }
+
+                        std::cout << "LEft keypress\n";
                         break;
                     default:
+                        std::cout << "Key pressed code is :" << SDL_GetKeyName(e.key.keysym.sym) << "\n";
                         break;
                     }
                     break;
@@ -127,7 +165,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[])
             /* Can draw rectangle here ? for now */
             /* Setting rbgA value , ie setting stuff to white ?*/
             // SDL_RenderClear(renderer.get());
-            SDL_Rect probe{100, 100, 200, 50};
+
             // SDL_SetRenderDrawColor(renderer.get(), 0xFF, 0xFF, 0xFF, 0xFF);
             // SDL_UpperBlitScaled(helloWorld.get(), nullptr, screenSurface, nullptr);
             SDL_SetRenderDrawColor(renderer.get(), 0x1E, 0x1E, 0x1E, 0xFF);
